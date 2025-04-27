@@ -1,0 +1,101 @@
+<div class="container mt-4">
+    <h2>{{ isEditMode ? 'Editar Ordem de Serviço' : 'Nova Ordem de Serviço' }}</h2>
+  
+    <form [formGroup]="osForm" (ngSubmit)="onSubmit()">
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <label for="numero" class="form-label">Número OS*</label>
+          <input type="text" class="form-control" id="numero" formControlName="numero">
+        </div>
+        <div class="col-md-3">
+          <label for="dataAbertura" class="form-label">Data Abertura*</label>
+          <input type="date" class="form-control" id="dataAbertura" formControlName="dataAbertura">
+        </div>
+        <div class="col-md-3">
+          <label for="status" class="form-label">Status*</label>
+          <select class="form-select" id="status" formControlName="status">
+            <option value="aberta">Aberta</option>
+            <option value="andamento">Em Andamento</option>
+            <option value="concluida">Concluída</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+      </div>
+  
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="clienteId" class="form-label">Cliente*</label>
+          <select class="form-select" id="clienteId" formControlName="clienteId">
+            <option value="">Selecione um cliente</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{ cliente.nome }} - {{ cliente.documento }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="tecnicoResponsavel" class="form-label">Técnico Responsável</label>
+          <input type="text" class="form-control" id="tecnicoResponsavel" formControlName="tecnicoResponsavel">
+        </div>
+      </div>
+  
+      <div class="mb-3">
+        <label for="observacoes" class="form-label">Observações</label>
+        <textarea class="form-control" id="observacoes" rows="3" formControlName="observacoes"></textarea>
+      </div>
+  
+      <h4>Itens da OS</h4>
+      <div formArrayName="itens">
+        <div *ngFor="let item of itens.controls; let i = index" [formGroupName]="i" class="item-row mb-3 p-3 border rounded">
+          <div class="row">
+            <div class="col-md-5">
+              <label class="form-label">Produto/Serviço*</label>
+              <select class="form-select" formControlName="produtoServicoId">
+                <option value="">Selecione</option>
+                <option *ngFor="let produto of produtosServicos" [value]="produto.id">
+                  {{ produto.descricao }} ({{ produto.tipo === 'produto' ? 'Produto' : 'Serviço' }})
+                </option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Quantidade*</label>
+              <input type="number" class="form-control" formControlName="quantidade" min="1">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Valor Unitário*</label>
+              <input type="number" class="form-control" formControlName="valorUnitario" min="0" step="0.01">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Desconto (%)</label>
+              <input type="number" class="form-control" formControlName="desconto" min="0" max="100">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+              <button type="button" class="btn btn-danger" (click)="removerItem(i)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="mb-3">
+        <button type="button" class="btn btn-secondary" (click)="adicionarItem()">
+          <i class="bi bi-plus"></i> Adicionar Item
+        </button>
+      </div>
+  
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" (click)="router.navigate(['/os'])">
+          Cancelar
+        </button>
+        <div>
+          <button type="submit" class="btn btn-primary me-2" [disabled]="osForm.invalid">
+            {{ isEditMode ? 'Atualizar' : 'Salvar' }}
+          </button>
+          <button *ngIf="isEditMode" type="button" class="btn btn-success" 
+                  (click)="gerarOrcamento()" [disabled]="osForm.invalid">
+            Gerar Orçamento
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>

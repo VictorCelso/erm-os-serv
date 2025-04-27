@@ -1,0 +1,90 @@
+<div class="container mt-4">
+    <div *ngIf="isLoading" class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  
+    <div *ngIf="!isLoading && orcamento" class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Orçamento #{{ orcamento.numero }}</h4>
+        <span class="badge" [ngClass]="{
+          'bg-warning': orcamento.status === 'pendente',
+          'bg-success': orcamento.status === 'aprovado',
+          'bg-danger': orcamento.status === 'rejeitado'
+        }">
+          {{ orcamento.status | titlecase }}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h5>Cliente</h5>
+            <p class="mb-1"><strong>{{ orcamento.cliente.nome }}</strong></p>
+            <p class="mb-1">{{ orcamento.cliente.documento }}</p>
+            <p class="mb-1">{{ orcamento.cliente.endereco }}</p>
+            <p class="mb-1">{{ orcamento.cliente.telefone }}</p>
+            <p class="mb-1">{{ orcamento.cliente.email }}</p>
+          </div>
+          <div class="col-md-6 text-end">
+            <p class="mb-1"><strong>Data:</strong> {{ orcamento.data | date:'dd/MM/yyyy' }}</p>
+            <p class="mb-1"><strong>Válido até:</strong> {{ orcamento.validoAte | date:'dd/MM/yyyy' }}</p>
+            <p *ngIf="orcamento.osId" class="mb-1">
+              <strong>OS Relacionada:</strong> #{{ orcamento.osId }}
+            </p>
+          </div>
+        </div>
+  
+        <h5>Itens do Orçamento</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Descrição</th>
+              <th>Quantidade</th>
+              <th>Valor Unit.</th>
+              <th>Desconto</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of orcamento.itens">
+              <td>{{ item.produtoServico.codigo }}</td>
+              <td>{{ item.produtoServico.descricao }}</td>
+              <td>{{ item.quantidade }} {{ item.produtoServico.unidadeMedida || '' }}</td>
+              <td>{{ item.valorUnitario | currency:'BRL' }}</td>
+              <td>{{ item.desconto || 0 }}%</td>
+              <td>{{ (item.quantidade * item.valorUnitario * (1 - (item.desconto || 0)/100)) | currency:'BRL' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="text-end"><strong>Total:</strong></td>
+              <td><strong>{{ calcularTotal() | currency:'BRL' }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+  
+        <div *ngIf="orcamento.observacoes" class="mb-3">
+          <h5>Observações</h5>
+          <p>{{ orcamento.observacoes }}</p>
+        </div>
+  
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-outline-secondary" (click)="router.navigate(['/orcamentos'])">
+            Voltar
+          </button>
+          <div>
+            <button *ngIf="orcamento.status === 'pendente'" class="btn btn-success me-2" 
+                    (click)="aprovarOrcamento()">
+              Aprovar Orçamento
+            </button>
+            <button *ngIf="orcamento.status === 'aprovado'" class="btn btn-primary" 
+                    (click)="gerarPedido()">
+              Gerar Pedido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

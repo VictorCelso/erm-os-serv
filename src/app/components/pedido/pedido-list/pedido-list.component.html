@@ -1,0 +1,83 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Pedidos</h2>
+      <a routerLink="/pedidos/novo" class="btn btn-primary">
+        <i class="bi bi-plus"></i> Novo Pedido
+      </a>
+    </div>
+  
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-secondary" 
+                  [class.active]="filtroStatus === 'todos'"
+                  (click)="filtrarPedidos('todos')">
+            Todos
+          </button>
+          <button type="button" class="btn btn-outline-warning" 
+                  [class.active]="filtroStatus === 'pendente'"
+                  (click)="filtrarPedidos('pendente')">
+            Pendentes
+          </button>
+          <button type="button" class="btn btn-outline-success" 
+                  [class.active]="filtroStatus === 'faturado'"
+                  (click)="filtrarPedidos('faturado')">
+            Faturados
+          </button>
+          <button type="button" class="btn btn-outline-danger" 
+                  [class.active]="filtroStatus === 'cancelado'"
+                  (click)="filtrarPedidos('cancelado')">
+            Cancelados
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <div *ngIf="isLoading" class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  
+    <div *ngIf="!isLoading && getPedidosFiltrados().length === 0" class="alert alert-info">
+      Nenhum pedido encontrado.
+    </div>
+  
+    <div *ngIf="!isLoading && getPedidosFiltrados().length > 0" class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Valor Total</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pedido of getPedidosFiltrados()">
+            <td>#{{ pedido.numero }}</td>
+            <td>{{ pedido.cliente.nome }}</td>
+            <td>{{ pedido.data | date:'dd/MM/yyyy' }}</td>
+            <td>
+              {{ pedido.itens.reduce((total, item) => total + (item.quantidade * item.valorUnitario * (1 - (item.desconto || 0)/100), 0) | currency:'BRL' }}
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStatusClass(pedido.status)">
+                {{ pedido.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              <a [routerLink]="['/pedidos', pedido.id]" class="btn btn-sm btn-info me-2">
+                <i class="bi bi-eye"></i>
+              </a>
+              <button *ngIf="pedido.status === 'pendente'" class="btn btn-sm btn-danger">
+                <i class="bi bi-x-circle"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
